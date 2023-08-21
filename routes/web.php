@@ -23,11 +23,7 @@ Route::get('/', [AttenderController::class, 'login']);
 Route::post('/login', [AttenderController::class, 'loginEnter'])->name('login');
 Route::get('/signup', [AttenderController::class, 'signup']);
 Route::post('/signup', [AttenderController::class, 'signupSave'])->name('signupsave');
-
-
-
 Route::post('/studentRegister', [AttenderController::class, 'addStudentSave'])->name('student-register');
-
 //End Admin Route
 
 // AjaxRoute RoleController
@@ -37,6 +33,7 @@ Route::get("/role-fetch", [RoleController::class, 'rolefetch'])->name('role-fetc
 Route::group(['middleware' => ['web', 'isTeacher']], function () {
     Route::get('/attendenceBook', [AttenderController::class, 'attendenceBook']);
     Route::get('/teacherLogout',[AttenderController::class,'teacherLogout']);
+    Route::post('/studentView',[AttenderController::class,'viewStudent']);
 });
 // End teacher Route
 // Start Student Route
@@ -58,5 +55,11 @@ Route::group(['middleware' => ['web', 'isAdmin']], function () {
     Route::get("/addTeacher", [AttenderController::class, 'addTeacher']);
     Route::get("/addStudent", [AttenderController::class, 'addStudent']);
     Route::get('/addAdmin', [AttenderController::class, 'addAdmin']);
+    Route::post('/grantedTeacherPage',[AttenderController::class,'grantedTeacher']);
+    Route::post('/deniedTeacherPage',[AttenderController::class,'deniedTeacher']);
+    Route::post('/studentGrantedPage',[AttenderController::class,'studentGranted']);
+    Route::post('/studentDeniedPage',[AttenderController::class,'studentDenied']);
+    Route::get('/chart',[AttenderController::class,'chartRegistration']);
+    // Route::get('/registrationStudentPerDay',[AttenderController::class,'registrationStudent']);
 });
 // End Admin Route

@@ -17,7 +17,7 @@
                     </a>
                     <a href="#" class="nav_link" onclick="addAdmin()">
                         <i class='bx bx-user nav_icon'></i>
-                        <span class="nav_name">Add Admin</span>
+                        <span class="nav_name">Profile</span>
                     </a>
                     <a href="#" class="nav_link" onclick="addStudent()">
                         <i class='bx bx-user-plus nav_icon'></i>

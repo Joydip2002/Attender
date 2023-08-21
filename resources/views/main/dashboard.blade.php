@@ -6,6 +6,70 @@
 <script>
     dashboard();
 
+    function dashboard() {
+        $.ajax({
+            url: "{{ url('/adminDashboard') }}",
+            success: function(data) {
+                registrationChart();
+                $("#addAdmin2").html(data);
+                // $(".adminDashboard").hide();
+            }
+        })
+    }
+
+    function registrationChart() {
+        $.ajax({
+            url: "{{ url('/chart') }}",
+            type: "GET",
+            success: function(data, status) {
+                console.log(data);
+                var dates = [];
+                var counts = [];
+                data.forEach(element => {
+                    dates.push(element.reg_date);
+                    counts.push(element.count);
+                });
+                // Chart.js configuration
+                var ctx = document.getElementById('registrationChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            label: 'Registration',
+                            data: counts,
+                            backgroundColor: 'blue',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Date"
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "No of Register"
+                                },
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     function addAdmin() {
         $.ajax({
             url: "{{ url('/addAdmin') }}",
@@ -16,15 +80,8 @@
         })
     }
 
-    function dashboard() {
-        $.ajax({
-            url: "{{ url('/adminDashboard') }}",
-            success: function(data) {
-                $("#addAdmin2").html(data);
-                // $(".adminDashboard").hide();
-            }
-        })
-    }
+
+
 
     function addStudent() {
         $.ajax({
@@ -115,13 +172,13 @@
             success: function(data) {
                 $("#classform")[0].reset();
                 Swal.fire({
-                    icon:'success',
-                    text:"class added Successfully",
+                    icon: 'success',
+                    text: "class added Successfully",
                     showConfirmButton: true,
-                    timerProgressBar: true,               
+                    timerProgressBar: true,
                 })
             },
-            error:function(error){
+            error: function(error) {
                 errors = error.responseJSON.errors;
                 str = "";
                 for (e in errors) {
@@ -130,6 +187,104 @@
                 Swal.fire("", "" + str + "", "warning")
             }
         })
+    }
+
+    function grantedTeacher($id) {
+        // alert($id);
+        var tid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: "{{ url('/grantedTeacherPage') }}",
+            type: 'POST',
+            data: {
+                id: tid,
+                _token: csrfToken
+            },
+            success: function(data, status) {
+                addTeacher();
+                if (data.status == 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Granted Successfully.'
+                    })
+                } else {
+                    Swal.fire('', '' + data + '', 'info')
+                }
+            }
+        });
+    }
+
+    function deniedTeacher($id) {
+        // alert($id);
+        var tid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: "{{ url('/deniedTeacherPage') }}",
+            type: 'POST',
+            data: {
+                id: tid,
+                _token: csrfToken
+            },
+            success: function(data, status) {
+                addTeacher();
+                if (data.status == 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'denied successfully.'
+                    })
+                } else {
+                    Swal.fire('', '' + data + '', 'info')
+                }
+            }
+        });
+    }
+
+    function studentGranted($id) {
+        var sid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: "{{ url('/studentGrantedPage') }}",
+            method: "POST",
+            data: {
+                id: sid,
+                _token: csrfToken
+            },
+            success: function(data, status) {
+                addStudent();
+                if (data.status == 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'granted successful',
+                    })
+                } else {
+                    Swal.fire('', '' + data + '', 'info')
+                }
+            }
+        });
+    }
+
+    function studentDenied($id) {
+        var sid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: "{{ url('/studentDeniedPage') }}",
+            method: "POST",
+            data: {
+                id: sid,
+                _token: csrfToken
+            },
+            success: function(data, status) {
+                addStudent();
+                if (data.status == 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'denied successful',
+                    })
+                } else {
+                    Swal.fire('', '' + data + '', 'info')
+                }
+            }
+        });
     }
 </script>
 

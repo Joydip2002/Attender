@@ -16,7 +16,7 @@
                 <td>{{$admin->email}}</td>
                 <td>{{$admin->gender}}</td>
                 <td>{{$admin->semester}}</td>
-                <td><button type="button" class="btn btn-success">Granted</button></td>
+                <td><button type="button" class="btn btn-success">Update Details</button></td>
             </tr>
             @endforeach
         </tbody>
