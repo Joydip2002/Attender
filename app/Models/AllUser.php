@@ -20,6 +20,7 @@ class AllUser extends Authenticatable
         "phone",
         "address",
         "password",
-        "semester"
+        "semester",
+        "sem_fk_id"
     ];
 }

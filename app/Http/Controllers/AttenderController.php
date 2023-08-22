@@ -36,6 +36,7 @@ class AttenderController extends Controller
             return redirect('/dashboard');
         } else if (Auth::attempt($credentials) && Auth::user()->role == 'student') {
             if (Auth::user()->status == 'active') {
+                session(['user_name' => Auth::user()->name, 'user_id' => Auth::user()->id]);
                 return redirect('/studentDashboard');
             } else {
                 return redirect('/')->with("failed", "Permission denied! You are not granted yet!!");
@@ -54,6 +55,7 @@ class AttenderController extends Controller
 
     public function signup()
     {
+        $subject = Classroom::all();
         if (Auth::user() && Auth::user()->role == 'admin') {
             return redirect('/dashboard');
         } else if (Auth::user() && Auth::user()->role == 'student' && Auth::user()->status == 'active') {
@@ -61,7 +63,7 @@ class AttenderController extends Controller
         } else if (Auth::user() && Auth::user()->role == 'teacher' && Auth::user()->status == 'active') {
             return redirect('/attendenceBook');
         }
-        return view('layouts.adminSignup');
+        return view('layouts.adminSignup', ['subjects' => $subject]);
     }
 
     public function signupSave(Request $request)
@@ -78,6 +80,20 @@ class AttenderController extends Controller
             'password' => 'required',
             'cpassword' => 'required|same:password',
         ]);
+        if ($request->role == 'student') {
+            $request->validate([
+                'role' => 'required',
+                'name' => 'required',
+                'gender' => 'required',
+                'email' => 'required|email|unique:alluser,email',
+                'phone' => 'required|digits:10',
+                'address' => 'required',
+                'semester' => 'required',
+                'subject' => 'required',
+                'password' => 'required',
+                'cpassword' => 'required|same:password',
+            ]);
+        }
 
         $user_data = new AllUser;
         $user_data->name = $request->input('name');
@@ -88,6 +104,7 @@ class AttenderController extends Controller
         $user_data->role = $request->input('role');
         $user_data->semester = $request->input('semester');
         $user_data->password = Hash::make($request->input('password'));
+        $user_data->sem_fk_id = $request->input('subject');
 
         $user_data->save();
         return redirect('/')->with('success', 'You have successfully registered!');
@@ -124,13 +141,14 @@ class AttenderController extends Controller
         //     ->get();
         return view('layouts.adminDashboard', ['totalStudent' => $totalStudent, 'totalTeacher' => $totalTeacher, 'totalAdmin' => $totalAdmin]);
     }
-    public function chartRegistration(){
+    public function chartRegistration()
+    {
         $days = 30; // Replace this with the desired number of days
         $results = AllUser::selectRaw('DATE(created_at) AS reg_date, COUNT(*) AS count')
-        ->where('created_at', '>=', now()->subDays($days))
-        ->where('role', 'student')
-        ->groupBy('reg_date')
-        ->get();
+            ->where('created_at', '>=', now()->subDays($days))
+            ->where('role', 'student')
+            ->groupBy('reg_date')
+            ->get();
         return $results;
     }
     public function addAdmin()
@@ -152,10 +170,16 @@ class AttenderController extends Controller
         $student = AllUser::find($sid);
         if ($student) {
             $student->status = 'active';
+            // $details = [
+            //     'title' => 'Mail from Joydip',
+            //     'body' => 'Hello,  ' . $student->name,
+            //     'main' => '   Welcome our environment.You have successfully Verified!! Now You Can Login..'
+            // ];
+            // \Mail::to($student->email)->send(new \App\Mail\sendmail($details));
             $student->save();
-            return response()->json(['message' => 'student status upadated successful', 'status' => 200]);
+            return response()->json(['message' => 'student status upadated successful', 'mail' => 'email send Successfully', 'status' => 200]);
         } else {
-            return response()->json(['message' => 'student not found', 'status' => 404]);
+            return response()->json(['message' => 'student not found', 'mail' => 'email not send', 'status' => 404]);
         }
     }
     public function studentDenied(Request $request)
@@ -255,9 +279,34 @@ class AttenderController extends Controller
     {
         return view('main.studentDashboard');
     }
-    public function studentDashboardPage()
+    public function studentDashboardPage(Request $request)
     {
-        return view('layouts.studentDashboardPage');
+        $stuid = $request->id;
+
+        $findStudent = AllUser::find($stuid);
+        // dd($findStudent);
+        $totalPresent = $findStudent->present;
+        $semester = $findStudent->semester;
+        $fkid = $findStudent->sem_fk_id;
+        $stuEmail = $findStudent->email;
+
+        $totalClass = Classroom::join('alluser', 'alluser.sem_fk_id', '=', 'semester.id')
+            ->where('alluser.semester', $semester)
+            ->where('alluser.sem_fk_id', $fkid)
+            ->where('alluser.email', $stuEmail)
+            ->get();
+
+        $class = $totalClass[0]->total_class;
+        $absent = $class - $totalPresent;
+        if ($class == 0) {
+            $class = 1;
+            $absent = 0;
+            $totalPresent = 0;
+        }
+        $percentage = ceil(($totalPresent / $class) * 100);
+
+        // dd($absent);
+        return view('layouts.studentDashboardPage', ['absent' => $absent, 'totalPresent' => $totalPresent, 'percentage' => $percentage]);
     }
     public function studentReport()
     {
@@ -274,13 +323,31 @@ class AttenderController extends Controller
         $sem = $request->sem;
         $sub = $request->sub;
         // $semesterStudent = AllUser::where('semester', $sem)->get();
-        $semesterStudent =  AllUser::join('semester', 'semester.id', '=', 'alluser.sem_fk_id')
-        ->where('alluser.semester', $sem)
-        ->where('semester.subject',$sub)
-        ->get();
+        $semesterStudent = Classroom::join('alluser', 'alluser.sem_fk_id', '=', 'semester.id')
+            ->where('alluser.semester', $sem)
+            ->where('semester.subject', $sub)
+            ->where('alluser.status', 'active')
+            ->get();
         // dd($semesterStudent);
         $subjects = Classroom::all();
-        return view('layouts.studentViewData',compact('semesterStudent','subjects'));
+        return view('layouts.studentViewData', compact('semesterStudent', 'subjects'));
+    }
+
+    public function giveAttendence(Request $request)
+    {
+        $record = $request->input('stuArr');
+        $length = count($record);
+        // dd($length);
+
+        $students = AllUser::whereIn('id', $record)->get();
+        foreach ($students as $stu) {
+            $stu->present = $stu->present + 1;
+            $stu->save();
+        }
+        $sem = Classroom::find($students[0]->sem_fk_id);
+        $sem->total_class = $sem->total_class + 1;
+        $sem->save();
+        return response()->json(['message' => 'attendence recorded successfully', 'status' => 200]);
     }
 
     public function studentLogout()

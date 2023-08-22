@@ -56,7 +56,8 @@
     <hr>
 
     <div class="container d-flex justify-content-end">
-        <button type="submit" class="btn btn-info bs">Bulk Select</button>
+        <button type="button" class="btn btn-info bs">Bulk Select</button>
+        <button type="button" class="btn btn-success sr saveRecord mx-2">Save Recorde</button>
         <button class="btn btn-danger mx-1 hidden cb">Cancel Bulk</button>
     </div>
 
@@ -64,31 +65,38 @@
         <table class="table">
             <thead>
                 <tr>
+                    {{-- <th scope="col">Id</th> --}}
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Semester</th>
-                    <th scope="col" class="p">Present</th>
-                    <th class="bsc hidden"><input type="checkbox"></th>
+                    <th scope="col" class="p"><span class="hidepresent">Present</span>
+                        <input type="checkbox" class="bsc hidden" id="allSelect">
+                    </th>
+
                 </tr>
             </thead>
             <tbody id="tableBody">
-               
+
             </tbody>
         </table>
     </div>
+
+
     <script>
         $(document).ready(function() {
             $(".bs").click(function() {
                 $(".bs").hide();
                 $(".cb").show();
                 $('.bsc').show();
-                $('.p').hide();
+                $('.hidepresent').hide();
+                // $('.sr').show();
             })
             $(".cb").click(function() {
                 $(".bs").show();
                 $(".cb").hide();
                 $('.bsc').hide();
-                $('.p').show();
+                $('.hidepresent').show();
+                // $('.sr').hide();
             })
         })
 
@@ -105,11 +113,70 @@
                     _token: csrfToken
                 },
                 success: function(data) {
-                  $("#tableBody").html(data);
-                    console.log("success");
+                    $("#tableBody").html(data);
+                    // console.log("success");
+                    if (!data) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: "No Records Found!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
                 }
             })
         }
+
+        // bulk select
+        $("#allSelect").click(function() {
+            $(".scheckbox").prop('checked', $(this).prop('checked'));
+        });
+
+        $(".saveRecord").click(function(e) {
+            e.preventDefault();
+            var pArr = [];
+            $('input:checkbox[name=id]:checked').each(function() {
+                pArr.push($(this).val());
+                console.log(pArr);
+            });
+
+            if (pArr.length > 0) {
+                var sub = $("#subject").val();
+                $.ajax({
+                    url: "{{ url('/studentAttendenceRecord') }}",
+                    type: "get",
+                    data: {
+                        stuArr: pArr
+                    },
+                    success: function(data, status) {
+                        if (data.status == 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                text: 'response recorded!!',
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => {
+                                window.location.href = "{{ 'attendenceBook' }}";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'info',
+                                text: 'something went wrong',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        }
+                    }
+                })
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    text: 'select atleast one data',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        })
     </script>
     @include('footer.footer')
 </body>

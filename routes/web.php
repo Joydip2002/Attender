@@ -34,6 +34,7 @@ Route::group(['middleware' => ['web', 'isTeacher']], function () {
     Route::get('/attendenceBook', [AttenderController::class, 'attendenceBook']);
     Route::get('/teacherLogout',[AttenderController::class,'teacherLogout']);
     Route::post('/studentView',[AttenderController::class,'viewStudent']);
+    Route::get('/studentAttendenceRecord',[AttenderController::class,'giveAttendence']);
 });
 // End teacher Route
 // Start Student Route

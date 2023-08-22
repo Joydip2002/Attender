@@ -19,6 +19,7 @@
             @csrf
             <select name="role" id="role" class="form-control">
                 <option value="">Select Role</option>
+                {{-- <option value="admin">Admin</option> --}}
                 <option value="student">Student</option>
                 <option value="teacher">Teacher</option>
                 {{-- <option value="admin">Admin</option> --}}
@@ -75,6 +76,16 @@
             @error('semester')
                 <div class="text-danger">{{ $message }}</div>
             @enderror
+            <label for="" class="extraInputContainer" style="display: none">Choose Your Subject</label>
+            <select name="subject" id="subject" class="extraInputContainer form-control" style="display: none">
+                <option value="">Select Subject</option>
+                @foreach ($subjects as $sub)
+                    <option value="{{$sub->id}}">{{$sub->subject}}</option>
+                @endforeach
+            </select>
+            @error('subject')
+                <div class="text-danger">{{ $message }}</div>
+            @enderror
             <label for="">Password</label>
             <input type="password" name="password" id="" class="form-control" placeholder="Enter Password">
             @error('password')
@@ -86,7 +97,6 @@
             @error('cpassword')
                 <div class="text-danger">{{ $message }}</div>
             @enderror
-            <label for="">User Type</label>
 
             <button type="submit" class="btn btn-primary w-100 mt-3">Register</button>
             <div class="text-center">

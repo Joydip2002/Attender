@@ -32,19 +32,26 @@
                 // Chart.js configuration
                 var ctx = document.getElementById('registrationChart').getContext('2d');
                 var chart = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
                         labels: dates,
                         datasets: [{
                             label: 'Registration',
                             data: counts,
-                            backgroundColor: 'blue',
+                            // backgroundColor: 'blue',
                             borderColor: 'rgba(0, 123, 255, 1)',
                             borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
+                        animation: {
+                            duration: 100,
+                            easing: 'linear',
+                            from: 5,
+                            to: 0,
+                            loop: true
+                        },
                         scales: {
                             xAxes: [{
                                 display: true,
