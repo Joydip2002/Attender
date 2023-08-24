@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            background-color: transparent;
+        }
+        .secondcircle,
+        .firstcircle {
+            /* rotate: 45deg; */
+        }
+
+        .firstcircle {
+            animation: left 1s linear infinite alternate-reverse;
+        }
+        .secondcircle {
+            animation: right 1s linear infinite alternate-reverse;
+        }
+
+        @keyframes left {
+            0% {
+                transform: translateX(-15px);
+                opacity: 0%;
+                rotate: 360deg;
+            }
+            100% {
+                transform: translateX(10px);
+                /* rotate: 360deg; */
+            }
+        }
+        @keyframes right {
+            0% {
+                transform: translateX(15px);
+                rotate: 360deg;
+                opacity: 0%;
+            }
+            100% {
+                transform: translateX(-10px);
+                /* rotate: 360deg; */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display: flex;justify-content: center; align-items: center; min-height: 100vh;">
+        <div class="firstcircle" style="background-color: yellow; padding: 10px;"></div>
+        <div class="secondcircle" style="background-color: rgb(21, 0, 255); padding: 10px;"></div>
+    </div>
+</body>
+
+</html>

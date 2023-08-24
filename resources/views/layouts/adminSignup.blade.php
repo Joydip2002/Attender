@@ -76,8 +76,8 @@
             @error('semester')
                 <div class="text-danger">{{ $message }}</div>
             @enderror
-            <label for="" class="extraInputContainer" style="display: none">Choose Your Subject</label>
-            <select name="subject" id="subject" class="extraInputContainer form-control" style="display: none">
+            <label for="" class="" style="">Choose Your Subject</label>
+            <select name="subject" id="subject" class=" form-control">
                 <option value="">Select Subject</option>
                 @foreach ($subjects as $sub)
                     <option value="{{$sub->id}}">{{$sub->subject}}</option>

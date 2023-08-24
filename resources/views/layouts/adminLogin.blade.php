@@ -8,11 +8,11 @@
     @include('header.header')
 </head>
 <body>
-    <div class="container d-flex flex-wrap">
+    <div class="container justify-content-center d-flex flex-wrap gap-2">
         <div class="">
-            <img src="login2.png" alt="">
+            <img src="login2.png" class="img-fluid" alt="">
         </div>
-        <div class="d-flex justify-content-center flex-column align-items-center col-3 shadow-lg p-4 rounded-2">
+        <div class="d-flex justify-content-center flex-column align-items-center shadow-lg p-4 rounded-2">
             @if (session('success'))
                 <div class="text-success">{{session('success')}}</div>
             @endif
@@ -21,8 +21,8 @@
             @endif
             <form action="{{url('/login')}}" method="post" class="col-12">
                 @csrf
-                <label for="">User Role</label>
-                <input type="text" name="type" class="form-control" placeholder="Automatically Fetch Your Role" id="urole" readonly>
+                {{-- <label for="">User Role</label>
+                <input type="text" name="type" class="form-control" placeholder="Automatically Fetch Your Role" id="urole" readonly> --}}
                 <label for="">Username(Email)</label>
                 <input type="email" name="email" id="" class="form-control" placeholder="Enter Username" id="email" onchange="fetchRole(this.value)">
                 @error('email')
@@ -54,21 +54,21 @@
     @include('footer.footer')
 
     <script>
-        function fetchRole(email){
-            $.ajax({
-                url:"{{route('role-fetch')}}",
-                type:"GET",
-                data : {email :email},
-                success: function(data,status){
-                    var role = data.role; 
-                    console.log(role); 
-                    $("#urole").val(role);
-                },
-                error : function(xhr,status,error){
-                    console.error(xhr.status);
-                }
-            })
-        }
+        // function fetchRole(email){
+        //     $.ajax({
+        //         url:"{{route('role-fetch')}}",
+        //         type:"GET",
+        //         data : {email :email},
+        //         success: function(data,status){
+        //             var role = data.role; 
+        //             console.log(role); 
+        //             $("#urole").val(role);
+        //         },
+        //         error : function(xhr,status,error){
+        //             console.error(xhr.status);
+        //         }
+        //     })
+        // }
     </script>
 </body>
 </html>

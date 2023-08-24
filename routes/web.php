@@ -35,6 +35,7 @@ Route::group(['middleware' => ['web', 'isTeacher']], function () {
     Route::get('/teacherLogout',[AttenderController::class,'teacherLogout']);
     Route::post('/studentView',[AttenderController::class,'viewStudent']);
     Route::get('/studentAttendenceRecord',[AttenderController::class,'giveAttendence']);
+    // Route::get('/updateClass',[AttenderController::class,'updateClassStatus']);
 });
 // End teacher Route
 // Start Student Route
@@ -55,12 +56,23 @@ Route::group(['middleware' => ['web', 'isAdmin']], function () {
     Route::get('/adminLogout', [AttenderController::class, 'adminLogout']);
     Route::get("/addTeacher", [AttenderController::class, 'addTeacher']);
     Route::get("/addStudent", [AttenderController::class, 'addStudent']);
+    Route::get("/viewClass", [AttenderController::class, 'viewClass']);
     Route::get('/addAdmin', [AttenderController::class, 'addAdmin']);
     Route::post('/grantedTeacherPage',[AttenderController::class,'grantedTeacher']);
     Route::post('/deniedTeacherPage',[AttenderController::class,'deniedTeacher']);
     Route::post('/studentGrantedPage',[AttenderController::class,'studentGranted']);
     Route::post('/studentDeniedPage',[AttenderController::class,'studentDenied']);
+
+    Route::post('/classActivePage',[AttenderController::class,'classActive']);
+    Route::post('/classInactivePage',[AttenderController::class,'classInactive']);
+
     Route::get('/chart',[AttenderController::class,'chartRegistration']);
+    Route::post('/showDataUpdateModal',[AttenderController::class,'edit']);
+    Route::post('/updateDetails',[AttenderController::class,'updateDetails']);
+    Route::post('/studentDataUpdate',[AttenderController::class,'studentedit']);
+    Route::post('/updateDetailsStudent',[AttenderController::class,'updateDetailsStudent']);
+    Route::post('/teacherDataUpdate',[AttenderController::class,'teacheredit']);
+    Route::post('/teacherDetailsStudent',[AttenderController::class,'updateDetailsTeacher']);
     // Route::get('/registrationStudentPerDay',[AttenderController::class,'registrationStudent']);
 });
 // End Admin Route

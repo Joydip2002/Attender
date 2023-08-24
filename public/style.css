@@ -193,3 +193,53 @@ a {
 .twitter:hover{
     background-color:rgb(37, 215, 255);
 }
+.hiddenpreloader{
+    /* d-flex justify-content-center align-items-center min-vh-100 position-absolute */
+    /* height: 100%; */
+    /* width: 100%; */
+    position: absolute;
+    transform: translate(-50%,-50%);
+    left: 50%;
+    top: 50%;
+    min-height: 50%;
+    display: none;
+}
+.loader{
+    background:rgb(218, 214, 214);
+    filter: blur(1px);
+}
+.secondcircle,
+.firstcircle {
+    /* rotate: 45deg; */
+}
+
+.pre {
+    animation: left 1s linear infinite alternate-reverse;
+}
+.secondcircle {
+    animation: right 1s linear infinite alternate-reverse;
+}
+
+@keyframes left {
+    0% {
+        transform: translateX(-15px);
+        opacity: 0;
+        /* rotate: 360deg; */
+    }
+    100% {
+        transform: translateX(10px);
+        opacity: 1;
+        /* rotate: 360deg; */
+    }
+}
+@keyframes right {
+    0% {
+        transform: translateX(15px);
+        rotate: 360deg;
+        opacity: 0%;
+    }
+    100% {
+        transform: translateX(-10px);
+        /* rotate: 360deg; */
+    }
+}

@@ -15,7 +15,7 @@ class AttenderController extends Controller
 {
     public function login()
     {
-        if (Auth::user() && Auth::user()->role == 'admin') {
+        if (Auth::user() && Auth::user()->role == 'student') {
             return redirect('/dashboard');
         } else if (Auth::user() && Auth::user()->role == 'student' && Auth::user()->status == 'active') {
             return redirect('/studentDashboard');
@@ -158,9 +158,14 @@ class AttenderController extends Controller
     }
     public function addStudent()
     {
-        $students = AllUser::where('role', 'student')->get();
-
+        $students = AllUser::where('role', 'student')->orderBy('id', 'desc')->get();
         return view('layouts.addStudent', ['students' => $students]);
+    }
+
+    public function viewClass()
+    {
+        $semester = Classroom::orderBy('id', 'desc')->get();
+        return view('layouts.viewClass', ['semester' => $semester]);
     }
 
     public function studentGranted(Request $request)
@@ -170,12 +175,12 @@ class AttenderController extends Controller
         $student = AllUser::find($sid);
         if ($student) {
             $student->status = 'active';
-            // $details = [
-            //     'title' => 'Mail from Joydip',
-            //     'body' => 'Hello,  ' . $student->name,
-            //     'main' => '   Welcome our environment.You have successfully Verified!! Now You Can Login..'
-            // ];
-            // \Mail::to($student->email)->send(new \App\Mail\sendmail($details));
+            $details = [
+                'title' => 'Mail from Joydip',
+                'body' => 'Hello,  ' . $student->name,
+                'main' => '   Welcome our environment.You have successfully Verified!! Now You Can Login..'
+            ];
+            \Mail::to($student->email)->send(new \App\Mail\sendmail($details));
             $student->save();
             return response()->json(['message' => 'student status upadated successful', 'mail' => 'email send Successfully', 'status' => 200]);
         } else {
@@ -220,7 +225,7 @@ class AttenderController extends Controller
     }
     public function addTeacher()
     {
-        $teachers = AllUser::where('role', 'teacher')->get();
+        $teachers = AllUser::where('role', 'teacher')->orderBy('id', 'desc')->get();
         return view('layouts.addTeacher', ['teachers' => $teachers]);
     }
 
@@ -230,6 +235,12 @@ class AttenderController extends Controller
         $teacher = AllUser::find($tid);
         if ($teacher) {
             $teacher->status = 'active';
+            $details = [
+                'title' => 'Mail from Joydip',
+                'body' => 'Hello,  ' . $teacher->name,
+                'main' => '   Welcome our environment.You have successfully Verified!! Now You Can Login..'
+            ];
+            \Mail::to($teacher->email)->send(new \App\Mail\sendmail($details));
             $teacher->save();
 
             return response()->json(['message' => 'Teacher status updated successfully', 'status' => 200]);
@@ -252,6 +263,33 @@ class AttenderController extends Controller
         }
     }
 
+    public function classActive(Request $request)
+    {
+        $tid = $request->id;
+        $sem = Classroom::find($tid);
+        if ($sem) {
+            $sem->status = 'active';
+            $sem->save();
+
+            return response()->json(['message' => 'sem status updated successfully', 'status' => 200]);
+        } else {
+            return response()->json(['message' => 'sem not found', 'status' => 404]);
+        }
+    }
+
+    public function classInactive(Request $request)
+    {
+        $tid = $request->id;
+        $sem = Classroom::find($tid);
+        if ($sem) {
+            $sem->status = 'inactive';
+            $sem->save();
+
+            return response()->json(['message' => 'sem status updated successfully', 'status' => 200]);
+        } else {
+            return response()->json(['message' => 'sem not found', 'status' => 404]);
+        }
+    }
 
     public function addClass()
     {
@@ -275,6 +313,16 @@ class AttenderController extends Controller
     }
     // -----------Student Dashboard------------
 
+    // public function updateClassStatus(Request $request){
+    //     $findClass = Classroom::where('subject',$request->sub)->get();
+    //     $subid = $findClass[0]->id ;
+    //     $findsub = Classroom::find($subid);
+
+    //     if($findsub){
+    //         $findsub->classstatus = '1';
+    //         $findsub->save();
+    //     }
+    // } 
     public function studentDashboard()
     {
         return view('main.studentDashboard');
@@ -303,6 +351,9 @@ class AttenderController extends Controller
             $absent = 0;
             $totalPresent = 0;
         }
+        if ($totalPresent == null) {
+            $totalPresent = 0;
+        }
         $percentage = ceil(($totalPresent / $class) * 100);
 
         // dd($absent);
@@ -314,7 +365,8 @@ class AttenderController extends Controller
     }
     public function attendenceBook()
     {
-        $subjects = Classroom::all();
+        $subjects = Classroom::where('semester.status', 'Active')->get();
+        // $pendingClass = Classroom::where('classstatus','0')->get();
         return view('layouts.attendenceBook', ['subjects' => $subjects]);
     }
 
@@ -322,19 +374,32 @@ class AttenderController extends Controller
     {
         $sem = $request->sem;
         $sub = $request->sub;
-        // $semesterStudent = AllUser::where('semester', $sem)->get();
+        $year = $request->year;
+        $dt = date("Y.m.d");
+
         $semesterStudent = Classroom::join('alluser', 'alluser.sem_fk_id', '=', 'semester.id')
             ->where('alluser.semester', $sem)
             ->where('semester.subject', $sub)
+            ->where('semester.semesteryear', $year)
             ->where('alluser.status', 'active')
+            ->select('alluser.*', 'semester.updated_at as semester_updated_at')
             ->get();
+
         // dd($semesterStudent);
+        foreach ($semesterStudent as $stu) {
+            if (date("Y.m.d", strtotime($stu->semester_updated_at)) == $dt) {
+                // dd($stu->semester_updated_at->format('Y.m.d'));
+                return response()->json(['alreadypresent' => "Already Attendence Recorded!!"]);
+            }
+        }
         $subjects = Classroom::all();
         return view('layouts.studentViewData', compact('semesterStudent', 'subjects'));
     }
 
     public function giveAttendence(Request $request)
     {
+        // $date
+
         $record = $request->input('stuArr');
         $length = count($record);
         // dd($length);
@@ -364,5 +429,71 @@ class AttenderController extends Controller
     {
         Auth::logout();
         return redirect('/');
+    }
+
+    public function edit(Request $request)
+    {
+        $id = $request->uid;
+        $adminData = AllUser::find($id);
+        // dd($adminData);
+
+        return response()->json(['adminData' => $adminData]);
+    }
+    public function studentedit(Request $request)
+    {
+        $id = $request->uid;
+        $studentData = AllUser::find($id);
+        // dd($studentData);
+
+        return response()->json(['studentData' => $studentData]);
+    }
+    public function teacheredit(Request $request)
+    {
+        $id = $request->uid;
+        $teacherData = AllUser::find($id);
+        dd($teacherData);
+        return response()->json(['teacherData' => $teacherData]);
+    }
+
+    public function updateDetails(Request $request)
+    {
+        $id = $request->userid;
+        $adminData = AllUser::find($id);
+
+        $adminData->name = $request['uname'];
+        $adminData->email = $request['uemail'];
+        $adminData->gender = $request['upgender'];
+        $adminData->phone = $request['umobile'];
+        $adminData->address = $request['address'];
+        $adminData->save();
+        return response()->json(['success' => 'successfully update', 'status' => 200]);
+    }
+
+    public function updateDetailsStudent(Request $request)
+    {
+        $id = $request->userid;
+        $adminData = AllUser::find($id);
+
+        $adminData->name = $request['uname'];
+        $adminData->email = $request['uemail'];
+        $adminData->gender = $request['upgender'];
+        $adminData->phone = $request['umobile'];
+        $adminData->address = $request['address'];
+        $adminData->save();
+        return response()->json(['success' => 'successfully update', 'status' => 200]);
+    }
+    public function updateDetailsTeacher(Request $request)
+    {
+        $id = $request->userid;
+
+        $adminData = AllUser::find($id);
+
+        $adminData->name = $request['uname'];
+        $adminData->email = $request['uemail'];
+        $adminData->gender = $request['upgender'];
+        $adminData->phone = $request['umobile'];
+        $adminData->address = $request['address'];
+        $adminData->save();
+        return response()->json(['success' => 'successfully update', 'status' => 200]);
     }
 }

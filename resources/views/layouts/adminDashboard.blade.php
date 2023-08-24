@@ -36,6 +36,7 @@
     </div>
 </div>
 
-<div class="container">
+<div class="card">
+    <h5 class="card-body">Student Registration Record Chart</h5>
     <canvas id="registrationChart" height="30%" width="75%"></canvas>
 </div>

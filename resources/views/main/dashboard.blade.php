@@ -1,5 +1,7 @@
 @include('sidebar.sidebar')
+@include('preloader.preloader')
 <div id="addAdmin2" class="">
+    
 </div>
 @include('footer.footer')
 
@@ -87,12 +89,86 @@
         })
     }
 
+    function updateAdminPofile($id){
+        // alert($id)
+        // $("#updateModal").modal('show');
+        var uid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.post('{{url('/showDataUpdateModal')}}', { uid: uid ,  _token: csrfToken}, function (data, status) {
+                // var userdetails = JSON.parse(data);
+                // console.log(data.adminData.name);
+                // updgender = "";
+                $("#uname").val(data.adminData.name);
+                $("#uemail").val(data.adminData.email);
+                $("#uphone").val(data.adminData.phone);
+                $("#address").val(data.adminData.address);
+                $("#hiddenid").val(data.adminData.id);
+                if (data.adminData.gender === 'M') {
+                    $('#ugender1').attr('checked', 'checked');
+                }
+                if (data.adminData.gender === 'F') {
+                    $('#ugender2').attr('checked', 'checked');
+                }
+                $("#hiddenid").val(data.adminData.id);
+            })
+
+            $("#updateModal").modal('show');
+    }
+
+    function saveChanges(){
+        var upgender = "";
+            var uname = $("#uname").val();
+            var uemail = $("#uemail").val();
+            var umobile = $("#uphone").val();
+            var address = $("#address").val();
+            if ($('#ugender1').is(':checked')) {
+                upgender = $('#ugender1').val();
+                // console.log(upgender);
+            }
+            else if ($('#ugender2').is(':checked')) {
+                upgender = $('#ugender2').val();
+            }
+            var uid = $("#hiddenid").val();
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.post("{{url('/updateDetails')}}", { uname: uname, uemail: uemail, umobile: umobile, address:address, upgender: upgender, userid: uid ,_token: csrfToken}, function (data, status) {
+                addAdmin();
+                // var updateresponse = JSON.parse(data);
+                if (data.status == 200) {
+                    Swal.fire({
+                        position: 'middle-center',
+                        icon: 'success',
+                        text: data.success,
+                        // confirmButtonText: "OK"
+                        timer: 2000
+                    })
+                }
+                else {
+                    Swal.fire({
+                        position: 'middle-center',
+                        icon: 'error',
+                        text: data.message,
+                        // confirmButtonText: "OK"
+                    })
+                }
+            });
+            $("#updateModal").modal('hide');
+    }
 
 
 
     function addStudent() {
         $.ajax({
             url: "{{ url('/addStudent') }}",
+            success: function(data) {
+                $("#addAdmin2").html(data);
+                // $(".adminDashboard").hide();
+            }
+        })
+    }
+    function viewClass() {
+        $.ajax({
+            url: "{{ url('/viewClass') }}",
             success: function(data) {
                 $("#addAdmin2").html(data);
                 // $(".adminDashboard").hide();
@@ -200,6 +276,7 @@
         // alert($id);
         var tid = $id;
         var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $("#preloader").show();
         $.ajax({
             url: "{{ url('/grantedTeacherPage') }}",
             type: 'POST',
@@ -208,6 +285,7 @@
                 _token: csrfToken
             },
             success: function(data, status) {
+                $("#preloader").hide();
                 addTeacher();
                 if (data.status == 200) {
                     Swal.fire({
@@ -249,6 +327,7 @@
     function studentGranted($id) {
         var sid = $id;
         var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $("#preloader").show();
         $.ajax({
             url: "{{ url('/studentGrantedPage') }}",
             method: "POST",
@@ -257,6 +336,7 @@
                 _token: csrfToken
             },
             success: function(data, status) {
+                $("#preloader").hide();
                 addStudent();
                 if (data.status == 200) {
                     Swal.fire({
@@ -267,6 +347,7 @@
                     Swal.fire('', '' + data + '', 'info')
                 }
             }
+            
         });
     }
 
@@ -293,6 +374,189 @@
             }
         });
     }
+
+    function studentUpdate($id){
+        // alert($id)
+        // $("#updateModal").modal('show');
+        var uid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.post('{{url('/studentDataUpdate')}}', { uid: uid ,  _token: csrfToken}, function (data, status) {
+                // var userdetails = JSON.parse(data);
+                // console.log(data.adminData.name);
+                // updgender = "";
+                $("#uname").val(data.studentData.name);
+                $("#uemail").val(data.studentData.email);
+                $("#uphone").val(data.studentData.phone);
+                $("#address").val(data.studentData.address);
+                $("#hiddenid").val(data.studentData.id);
+                if (data.studentData.gender === 'M') {
+                    $('#ugender1').attr('checked', 'checked');
+                }
+                if (data.studentData.gender === 'F') {
+                    $('#ugender2').attr('checked', 'checked');
+                }
+                $("#hiddenid").val(data.studentData.id);
+            })
+
+            $("#updateModal").modal('show');
+    }
+
+    function saveChangesStudent(){
+        var upgender = "";
+            var uname = $("#uname").val();
+            var uemail = $("#uemail").val();
+            var umobile = $("#uphone").val();
+            var address = $("#address").val();
+            if ($('#ugender1').is(':checked')) {
+                upgender = $('#ugender1').val();
+                // console.log(upgender);
+            }
+            else if ($('#ugender2').is(':checked')) {
+                upgender = $('#ugender2').val();
+            }
+            var uid = $("#hiddenid").val();
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.post("{{url('/updateDetailsStudent')}}", { uname: uname, uemail: uemail, umobile: umobile, address:address, upgender: upgender, userid: uid ,_token: csrfToken}, function (data, status) {
+                addStudent();
+                // var updateresponse = JSON.parse(data);
+                if (data.status == 200) {
+                    Swal.fire({
+                        position: 'middle-center',
+                        icon: 'success',
+                        text: data.success,
+                        // confirmButtonText: "OK"
+                        timer: 2000
+                    })
+                }
+                else {
+                    Swal.fire({
+                        position: 'middle-center',
+                        icon: 'error',
+                        text: data.message,
+                        // confirmButtonText: "OK"
+                    })
+                }
+            });
+            $("#updateModal").modal('hide');
+    }
+
+    function teacherUpdate($id){
+        // alert($id)
+        // $("#updateModal").modal('show');
+        var uid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.post('{{url('/studentDataUpdate')}}', { uid: uid ,  _token: csrfToken}, function (data, status) {
+                // var userdetails = JSON.parse(data);
+                // console.log(data.adminData.name);
+                // updgender = "";
+                $("#uname").val(data.studentData.name);
+                $("#uemail").val(data.studentData.email);
+                $("#uphone").val(data.studentData.phone);
+                $("#address").val(data.studentData.address);
+                $("#hiddenid").val(data.studentData.id);
+                if (data.studentData.gender === 'M') {
+                    $('#ugender1').attr('checked', 'checked');
+                }
+                if (data.studentData.gender === 'F') {
+                    $('#ugender2').attr('checked', 'checked');
+                }
+                $("#hiddenid").val(data.studentData.id);
+            })
+
+            $("#updateModal").modal('show');
+    }
+
+    function saveChangesTeacher(){
+        var upgender = "";
+            var uname = $("#uname").val();
+            var uemail = $("#uemail").val();
+            var umobile = $("#uphone").val();
+            var address = $("#address").val();
+            if ($('#ugender1').is(':checked')) {
+                upgender = $('#ugender1').val();
+                // console.log(upgender);
+            }
+            else if ($('#ugender2').is(':checked')) {
+                upgender = $('#ugender2').val();
+            }
+            var uid = $("#hiddenid").val();
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.post("{{url('/updateDetailsStudent')}}", { uname: uname, uemail: uemail, umobile: umobile, address:address, upgender: upgender, userid: uid ,_token: csrfToken}, function (data, status) {
+                addTeacher();
+                // var updateresponse = JSON.parse(data);
+                if (data.status == 200) {
+                    Swal.fire({
+                        position: 'middle-center',
+                        icon: 'success',
+                        text: data.success,
+                        // confirmButtonText: "OK"
+                        timer: 2000
+                    })
+                }
+                else {
+                    Swal.fire({
+                        position: 'middle-center',
+                        icon: 'error',
+                        text: data.message,
+                        // confirmButtonText: "OK"
+                    })
+                }
+            });
+            $("#updateModal").modal('hide');
+    }
+
+    function classActive($id) {
+        // alert($id);
+        var tid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: "{{ url('/classActivePage') }}",
+            type: 'POST',
+            data: {
+                id: tid,
+                _token: csrfToken
+            },
+            success: function(data, status) {
+                viewClass();
+                if (data.status == 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'activate successfully.'
+                    })
+                } else {
+                    Swal.fire('', '' + data + '', 'info')
+                }
+            }
+        });
+    }
+
+    function classInactive($id) {
+        // alert($id);
+        var tid = $id;
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajax({
+            url: "{{ url('/classInactivePage') }}",
+            type: 'POST',
+            data: {
+                id: tid,
+                _token: csrfToken
+            },
+            success: function(data, status) {
+                viewClass();
+                if (data.status == 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'inactivate successfully.'
+                    })
+                } else {
+                    Swal.fire('', '' + data + '', 'info')
+                }
+            }
+        });
+    }
+
 </script>
 
 </body>

@@ -19,71 +19,92 @@
     <div class="text-center">
         <h3><u>Attendence Book</u></h3>
     </div>
-    <div class="conatiner d-flex justify-content-center justify-content-around">
-
-        <div>
-            <h6>Name : <span>{{ session('user_name') }}</span></h6>
+    <div class="container shadow-lg p-3">
+        <div class="d-flex justify-content-center justify-content-md-between">
+            <div>
+                <h6>Name: <span>{{ session('user_name') }}</span></h6>
+            </div>
+            <div class="btn btn-sm btn-danger">
+                <a href="{{ url('/teacherLogout') }}" class="text-decoration-none text-white">Logout</a>
+            </div>
         </div>
-
-        <form action="" method="" class="d-flex justify-content-around col-8">
-            <div class="d-flex">
-                <h6>Semester</h6>
-                &nbsp;<select name="semester" id="semester">
-                    <option value="S-I">S-I</option>
-                    <option value="S-II">S-II</option>
-                    <option value="S-III">S-III</option>
-                    <option value="S-IV">S-IV</option>
-                    <option value="S-V">S-V</option>
-                    <option value="S-VI">S-VI</option>
+    
+        <form action="" method="" class="d-flex flex-wrap justify-content-around col-12 col-md-8">
+            <div class="d-flex flex-column mb-3">
+                <label for="semester" class="form-label">Semester</label>
+                <select name="semester" id="semester" class="form-select">
+                    @foreach ($subjects->unique('semestername') as $subject)
+                        <option value="{{ $subject->semestername }}">{{ $subject->semestername }}</option>
+                    @endforeach
                 </select>
             </div>
-
-            <div class="d-flex">
-                <h6>Subject</h6>
-                &nbsp;<select name="subject" id="subject">
+    
+            <div class="d-flex flex-column mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <select name="subject" id="subject" class="form-select">
                     @foreach ($subjects as $subject)
                         <option value="{{ $subject->subject }}">{{ $subject->subject }}</option>
                     @endforeach
                 </select>
             </div>
-            <button type="button" class="btn btn-primary" onclick="viewStudentRecord()">Submit</button>
+    
+            <div class="d-flex flex-column mb-3">
+                <label for="year" class="form-label">Batch Year</label>
+                <select name="year" id="year" class="form-select">
+                    @foreach ($subjects->unique('semesteryear') as $year)
+                        <option value="{{ $year->semesteryear }}">{{ $year->semesteryear }}</option>
+                    @endforeach
+                </select>
+            </div>
+    
+            <button type="button" class="btn btn-primary" id="subbtn" onclick="viewStudentRecord()" style="margin: 30px 0">Submit</button>
         </form>
-
-        <div class="btn btn-danger">
-            <a href="{{ url('/teacherLogout') }}" class="text-decoration-none text-white">Logout</a>
-        </div>
     </div>
+    
     <hr>
 
-    <div class="container d-flex justify-content-end">
-        <button type="button" class="btn btn-info bs">Bulk Select</button>
-        <button type="button" class="btn btn-success sr saveRecord mx-2">Save Recorde</button>
-        <button class="btn btn-danger mx-1 hidden cb">Cancel Bulk</button>
-    </div>
+    {{-- <div class="container text-center hidden acclass">
+        <div class="btn btn-outline-info">Activate Class</div>
+    </div> --}}
 
-    <div class="container">
-        <table class="table">
-            <thead>
-                <tr>
-                    {{-- <th scope="col">Id</th> --}}
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Semester</th>
-                    <th scope="col" class="p"><span class="hidepresent">Present</span>
-                        <input type="checkbox" class="bsc hidden" id="allSelect">
-                    </th>
+        <div class="container d-flex justify-content-end my-1">
+            <button type="button" class="btn btn-info bs">Bulk Select</button>
+            <button type="button" class="btn btn-success sr saveRecord mx-2">Save Recorde</button>
+            <button class="btn btn-danger mx-1 hidden cb">Cancel Bulk</button>
+        </div>
 
-                </tr>
-            </thead>
-            <tbody id="tableBody">
+        <div class="container card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        {{-- <th scope="col">Id</th> --}}
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Semester</th>
+                        <th scope="col" class="p"><span class="hidepresent">Present</span>
+                            <input type="checkbox" class="bsc hidden" id="allSelect">
+                        </th>
 
-            </tbody>
-        </table>
-    </div>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+
+                </tbody>
+            </table>
+        </div>
 
 
     <script>
         $(document).ready(function() {
+            
+            // $("#subbtn").click(function() {
+            //     $(".acclass").show();
+            //     $(".attedencePage").hide();
+            // })
+            // $(".acclass").click(function() {
+            //     $(".attedencePage").show();
+            //     $(".acclass").hide();
+            // })
             $(".bs").click(function() {
                 $(".bs").hide();
                 $(".cb").show();
@@ -98,11 +119,60 @@
                 $('.hidepresent').show();
                 // $('.sr').hide();
             })
+            // updateClassStatus();
         })
+
+        // function updateClassStatus() {
+        //         var sub = $("#subject").val();
+        //             console.log(sub);
+        //         // AJAX request to update class status
+        //         $.ajax({
+        //             url: "{{url('/updateClassStatusDaily')}}", 
+        //             type: 'POST',
+        //             success: function(response) {
+        //                 console.log('Class status updated successfully.');
+        //             },
+        //             error: function(error) {
+        //                 console.error('Error updating class status:', error);
+        //             }
+        //         });
+        //     }
+        // updateClassStatus();
+
+        // $(".acclass").click(function() {
+        //     var sub = $("#subject").val();
+        //     var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        //     // alert(sub)
+        //     Swal.fire({
+        //         title: 'Are you sure?',
+        //         text: 'You won\'t be able to revert this!',
+        //         icon: 'warning',
+        //         showCancelButton: true,
+        //         confirmButtonColor: '#3085d6',
+        //         cancelButtonColor: '#d33',
+        //         confirmButtonText: 'Yes, Activate!'
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             $.ajax({
+        //                 url: "{{ url('/updateClass') }}",
+        //                 data: {
+        //                     sub,
+        //                     sub,
+        //                     _token: csrfToken
+        //                 },
+        //                 type: "get",
+        //                 success: function(data, status) {
+        //                     console.log('success');
+        //                 }
+        //             })
+        //         }
+        //     });
+        // })
 
         function viewStudentRecord() {
             var sem = $("#semester").val();
             var sub = $("#subject").val();
+            var year = $("#year").val();
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
                 url: "{{ url('/studentView') }}",
@@ -110,6 +180,7 @@
                 data: {
                     sem: sem,
                     sub: sub,
+                    year: year,
                     _token: csrfToken
                 },
                 success: function(data) {
@@ -119,6 +190,14 @@
                         Swal.fire({
                             icon: 'error',
                             title: "No Records Found!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                    if(data.alreadypresent){
+                        Swal.fire({
+                            icon: 'error',
+                            title: "Already Attendence Recorded!!",
                             showConfirmButton: false,
                             timer: 1500
                         })
