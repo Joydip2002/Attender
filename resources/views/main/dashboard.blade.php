@@ -6,7 +6,17 @@
 @include('footer.footer')
 
 <script>
+
     dashboard();
+
+    // function notifications(){
+    //      $.ajax({
+    //         url: "{{url('/notifiactionsPage')}}",
+    //         success:function(data){
+    //             $("#addAdmin2").html(data);
+    //         }
+    //      })
+    // }
 
     function dashboard() {
         $.ajax({

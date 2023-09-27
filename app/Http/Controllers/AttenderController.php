@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AllUser;
 use App\Models\Classroom;
 use App\Models\Student;
+use App\Notifications\AddTeacherNotifications;
+use App\Notifications\WelcomwNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +17,7 @@ class AttenderController extends Controller
 {
     public function login()
     {
-        if (Auth::user() && Auth::user()->role == 'student') {
+        if (Auth::user() && Auth::user()->role == 'admin') {
             return redirect('/dashboard');
         } else if (Auth::user() && Auth::user()->role == 'student' && Auth::user()->status == 'active') {
             return redirect('/studentDashboard');
@@ -50,6 +52,56 @@ class AttenderController extends Controller
             }
         } else {
             return redirect('/')->with('failed', 'Invalid Credentials!');
+        }
+    }
+
+    public function forgotPasswordPage()
+    {
+        return view('layouts.forgotPassword');
+    }
+    public function forgotPasswordFunc(Request $request)
+    {
+
+        $request->validate([
+            'email' => 'required'
+        ]);
+        $useremail = $request->email;
+        $user = AllUser::where('email', $useremail)->first();
+        // dd($user->id);
+        if ($user) {
+            $id = base64_encode($user->id);
+            $details = [
+                'title' => 'Mail from Joydip',
+                'body' => 'Hello,  ' . $user->email,
+                'main' => 'password rest link : http://127.0.0.1:8000/resetPassword/' . $id
+            ];
+            \Mail::to($request->email)->send(new \App\Mail\sendmail($details));
+            return redirect('/')->with(['success' => 'Check Email and reset password then login..']);
+        } else {
+            return redirect('/forgotPassword')->with(['failed' => 'Email does not exist..']);
+        }
+    }
+
+    public function resetPassword($id)
+    {
+        return view('layouts.resetPassword', compact('id'));
+    }
+
+    public function resetPasswordFunc(Request $request)
+    {
+        $id = $request->id;
+        // dd($request->id);
+        $request->validate([
+            'password' => 'required',
+            'cpassword' => 'required|same:password'
+        ]);
+        if ($request->password == $request->cpassword) {
+            $uid = base64_decode($id);
+            $uid = AllUser::find($uid);
+            // dd($uid);
+            $uid->password = Hash::make($request->password);
+            $uid->save();
+            return redirect('/')->with('success', 'successfully updated!!');
         }
     }
 
@@ -107,13 +159,47 @@ class AttenderController extends Controller
         $user_data->sem_fk_id = $request->input('subject');
 
         $user_data->save();
+
+        $adminData = AllUser::where('role', 'admin')->first();
+        if ($user_data->role == 'student') {
+            $adminData->notify(new WelcomwNotification($user_data));
+        } elseif ($user_data->role == 'teacher') {
+            $adminData->notify(new AddTeacherNotifications($user_data));
+        }
+
+
         return redirect('/')->with('success', 'You have successfully registered!');
 
     }
     public function dashboard()
     {
-        return view('main.dashboard');
+        $notifications = Auth::user()->unReadNotifications;
+        $notificationGroupWiseCount = Auth::user()->unreadNotifications
+            ->groupBy('type')
+            ->map(function ($group) {
+                return [
+                    // 'type' => $group->first()->type,
+                    'total' => $group->count(),
+                ];
+            });
+
+        // dd($notificationGroupWiseCount);
+
+        return view('main.dashboard', compact('notifications', 'notificationGroupWiseCount'));
     }
+
+    function readNotification($id)
+    {
+        Auth::user()->unReadNotifications->find($id)->markAsRead();
+        return redirect('/dashboard');
+    }
+
+    function readAllNotification()
+    {
+        Auth::user()->unReadNotifications->markAsRead();
+        return redirect('/dashboard');
+    }
+
     // public function registrationStudent()
     // {
     //     $days = 30; // Replace this with the desired number of days

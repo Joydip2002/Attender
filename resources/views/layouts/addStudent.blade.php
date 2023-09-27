@@ -76,7 +76,7 @@
                             <button type="button" class="btn btn-success"
                                 onclick="studentGranted({{ $stu->id }})">Granted</button>
                         @endif
-                        <button type="button" class="btn btn-warning"
+                        <button type="button" class="btn btn-warning m-1"
                             onclick="studentUpdate({{ $stu->id }})">Update</button>
                     </td>
                 </tr>

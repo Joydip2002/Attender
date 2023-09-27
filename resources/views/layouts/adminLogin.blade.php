@@ -34,7 +34,7 @@
                     <div class="text-danger">{{$message}}</div>
                 @enderror
                 <div class="d-flex justify-content-end">
-                    <a href="#">Forgot Password?</a>
+                    <a href="{{url('/forgotPassword')}}" class="forgotPassword">Forgot Password?</a>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 mt-3">Login</button>
                 <div class="text-center">

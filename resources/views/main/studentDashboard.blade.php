@@ -14,10 +14,8 @@
                 id: {{ session('user_id') }}
             },
             success: function(data) {
-                // console.log(data);
-               
-                $("#studentMainContentLoad").html(data);
-                
+                // console.log(data);              
+                $("#studentMainContentLoad").html(data);               
                 registrationChartStudent();
             }
         })

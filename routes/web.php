@@ -18,13 +18,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', function () {
     return redirect('/');
 });
-// Start Admin Route
+// Start login,signup,forgotpassword Route
 Route::get('/', [AttenderController::class, 'login']);
-Route::post('/login', [AttenderController::class, 'loginEnter'])->name('login');
+Route::post('/login', [AttenderController::class, 'loginEnter'])->name('login-page');
 Route::get('/signup', [AttenderController::class, 'signup']);
 Route::post('/signup', [AttenderController::class, 'signupSave'])->name('signupsave');
 Route::post('/studentRegister', [AttenderController::class, 'addStudentSave'])->name('student-register');
-//End Admin Route
+Route::get('/forgotPassword',[AttenderController::class,'forgotPasswordPage'])->name('forgot-password-page');
+Route::post('/forgotPassword',[AttenderController::class,'forgotPasswordFunc'])->name('forgot-password-func');
+
+Route::get('/resetPassword/{id}',[AttenderController::class,'resetPassword'])->name('reset-password');
+Route::post('/resetPasswordPage/{id}',[AttenderController::class,'resetPasswordFunc'])->name('reset-password-func');
+//End login,signup,forgotpassword Route
 
 // AjaxRoute RoleController
 Route::get("/role-fetch", [RoleController::class, 'rolefetch'])->name('role-fetch');
@@ -73,6 +78,7 @@ Route::group(['middleware' => ['web', 'isAdmin']], function () {
     Route::post('/updateDetailsStudent',[AttenderController::class,'updateDetailsStudent']);
     Route::post('/teacherDataUpdate',[AttenderController::class,'teacheredit']);
     Route::post('/teacherDetailsStudent',[AttenderController::class,'updateDetailsTeacher']);
-    // Route::get('/registrationStudentPerDay',[AttenderController::class,'registrationStudent']);
+    Route::get('/readNotification/{id}',[AttenderController::class,'readNotification'])->name('read-notification');
+    Route::get('/markAllAsRead',[AttenderController::class,'readAllNotification'])->name('read-all-notifications');
 });
 // End Admin Route

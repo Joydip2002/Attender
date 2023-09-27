@@ -10,12 +10,12 @@
 </head>
 
 <body>
-    <div class="container d-flex justify-content-center col-4 flex-column flex-wrap shadow-lg rounded-1 py-3 my-2">
-        <div class="container d-flex justify-content-center flex-column col-10">
+    <div class="container d-flex justify-content-center flex-column flex-wrap shadow-lg rounded-1 py-3 my-2 c">
+        <div class="container d-flex justify-content-center flex-column">
             <h4>Register Form</h4>
         </div>
         <form action="{{ url('/signup') }}" method="post"
-            class="container d-flex justify-content-center flex-column col-10">
+            class="container d-flex justify-content-center flex-column">
             @csrf
             <select name="role" id="role" class="form-control">
                 <option value="">Select Role</option>
@@ -101,7 +101,7 @@
             <button type="submit" class="btn btn-primary w-100 mt-3">Register</button>
             <div class="text-center">
                 <label for="" class="mt-3">Already have an account?</label><span>&nbsp;<a
-                        href="{{ url('/') }}" class="text-danger">Login</a></span>
+                        href="{{ url('/login') }}" class="text-danger">Login</a></span>
             </div>
         </form>
 

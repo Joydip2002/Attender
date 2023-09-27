@@ -219,6 +219,9 @@ a {
 .secondcircle {
     animation: right 1s linear infinite alternate-reverse;
 }
+.forgotPassword:hover{
+    color: red;
+}
 
 @keyframes left {
     0% {
@@ -242,4 +245,9 @@ a {
         transform: translateX(-10px);
         /* rotate: 360deg; */
     }
+}
+
+.dl:hover{
+    background: #AFA5D9;
+    border-radius: 5px;
 }
